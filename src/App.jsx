@@ -1,84 +1,117 @@
 import styles from './app.module.css';
-import data from './data.json';
 import { useState } from 'react';
 
 export const App = () => {
-	const [activeIndex, setActiveIndex] = useState(0);
+	const actionButton = [
+		{
+			id: '001',
+			title: '+',
+			onClick() {
+				setOperator('+');
+				setIsOperatorEntered(true);
+				if (result) {
+					setOperand1(result);
+					setResult('');
+				}
+			},
+		},
+		{
+			id: '002',
+			title: '-',
+			onClick() {
+				setOperator('-');
+				setIsOperatorEntered(true);
+				if (result) {
+					setOperand1(result);
+					setResult('');
+				}
+			},
+		},
+		{
+			id: '003',
+			title: '=',
+			onClick() {
+				let result;
+				if (!operand1 || !operand2) return;
+				switch (operator) {
+					case '+':
+						result = Number(operand1) + Number(operand2);
+						break;
+					case '-':
+						result = Number(operand1) - Number(operand2);
+						break;
+				}
+				setResult(String(result));
+				clearAll();
+			},
+		},
+		{
+			id: '004',
+			title: 'C',
+			onClick() {
+				clearAll();
+				setResult('');
+			},
+		},
+	];
+	const NUMS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
 
-	const onForwardButtonClick = () => {
-		setActiveIndex(activeIndex + 1);
+	const clearAll = () => {
+		setOperand1('');
+		setOperator('');
+		setOperand2('');
+		setIsOperatorEntered(false);
 	};
 
-	const onBackButtonClick = () => {
-		setActiveIndex(activeIndex - 1);
-	};
+	const [operand1, setOperand1] = useState('');
+	const [operator, setOperator] = useState('');
+	const [operand2, setOperand2] = useState('');
+	const [result, setResult] = useState('');
+	const [isOperatorEntered, setIsOperatorEntered] = useState(false);
 
-	const onFromBeginningButtonClick = () => {
-		setActiveIndex(0);
+	const onClickForNumber = (item) => {
+		setResult('');
+		if (!isOperatorEntered) {
+			setOperand1(`${operand1}${item}`);
+		} else {
+			setOperand2(`${operand2}${item}`);
+		}
 	};
-
-	const handleStepClick = (index) => {
-		setActiveIndex(index);
-	};
-
-	const isFirstStep = activeIndex === 0;
-	const isLastStep = activeIndex === data.length - 1;
 
 	return (
-		<div className={styles.container}>
-			<div className={styles.card}>
-				<h1>Инструкция по готовке пельменей</h1>
-				<div className={styles.steps}>
-					<div className={styles['steps-content']}>
-						{data.at(activeIndex).content}
+		<>
+			<div className={styles.container}>
+				<h1>Калькулятор</h1>
+				<div className={styles.perent}>
+					<div className={styles['display-screen']}>
+						{result ? result : operand1 + operator + operand2}
 					</div>
-					<ul className={styles['steps-list']}>
-						{data.map((item, index) => (
-							<li
-								key={item.id}
-								className={`
-									${styles['steps-item']}
-									${index === activeIndex ? styles.active : ''}
-									${index < activeIndex ? styles.done : ''}
-								`}
-							>
+					<ul className={styles['action-button']}>
+						{actionButton.map((item) => (
+							<li key={item.id} className={styles['action-item']}>
 								<button
-									className={styles['steps-item-button']}
-									onClick={() => handleStepClick(index)}
+									className={styles['action-item-button']}
+									onClick={item.onClick}
 								>
-									{index + 1}
+									{item.title}
 								</button>
-								{item.title}
 							</li>
 						))}
 					</ul>
-					<div className={styles['buttons-container']}>
-						<button
-							className={styles.button}
-							disabled={isFirstStep}
-							onClick={onBackButtonClick}
-						>
-							Назад
-						</button>
-
-						{isLastStep ? (
-							<button
-								className={styles.button}
-								onClick={onFromBeginningButtonClick}
-							>
-								Начать сначала
-							</button>
-						) : (
-							<button
-								className={styles.button}
-								onClick={onForwardButtonClick}
-							>
-								Далее
-							</button>
-						)}
-					</div>
+					<ul className={styles['action-button']}>
+						{NUMS.map((item) => (
+							<li key={item} className={styles['action-item']}>
+								<button
+									className={styles['action-item-button']}
+									onClick={() => onClickForNumber(item)}
+								>
+									{item}
+								</button>
+							</li>
+						))}
+					</ul>
 				</div>
 			</div>
-		</div>
+		</>
 	);
 };
