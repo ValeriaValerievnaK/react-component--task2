@@ -6,12 +6,17 @@ const sendFormData = (formData) => {
 	console.log(formData);
 };
 
+const conditionForEmail = /^[\w.-]+@[\w-]+\.\w{2,}$/
+const conditionForPassword = /^(?=.*[0-9])(?=.*[A-Z])[a-zA-Z0-9]*$/
+
 const Form = () => {
-	const { getLoginPassword, getState, updateState } = useStore();
 	const [loginError, setLoginError] = useState(null);
 	const [passwordError, setPasswordError] = useState(null);
 	const [confirmPasswordError, setConfirmPasswordError] = useState(null);
+
+	const { getState, updateState, resetState } = useStore();
 	const { email, password, confirmPassword } = getState();
+
 	const submitButtonRef = useRef(null);
 
 	const isFormValid =
@@ -29,7 +34,7 @@ const Form = () => {
 
 		if (target.value === '') {
 			newError = 'Это обязательное поле.';
-		} else if (!/^[\w.-]+@[\w-]+\.\w{2,}$/.test(target.value)) {
+		} else if (!conditionForEmail.test(target.value)) {
 			newError = 'Неверный email. Пример: motya@gmail.com';
 		} else if (target.value.length > 255) {
 			newError = 'Введите корректный email.';
@@ -45,7 +50,7 @@ const Form = () => {
 
 		if (target.value === '') {
 			newError = 'Это обязательное поле.';
-		} else if (!/^(?=.*[0-9])(?=.*[A-Z])[a-zA-Z0-9]*$/.test(target.value)) {
+		} else if (!conditionForPassword.test(target.value)) {
 			newError = 'Слабый пароль. Используй латиницу, цифры и заглавные буквы.';
 		} else if (target.value.length > 255) {
 			newError = 'Введите корректныей пароль.';
@@ -72,8 +77,10 @@ const Form = () => {
 
 	const onSubmit = (event) => {
 		event.preventDefault();
+
 		if (email && password && confirmPassword) {
-			sendFormData(getLoginPassword());
+			sendFormData({ email, password });
+			resetState();
 		} else {
 			if (!email) {
 				setLoginError('Это обязательное поле');
