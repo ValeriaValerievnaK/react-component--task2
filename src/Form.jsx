@@ -1,98 +1,60 @@
-import { useStore } from './hook/useStore';
 import FormLayout from './FormLayout';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
+import * as yup from 'yup';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 const sendFormData = (formData) => {
-	console.log(formData);
+	const { email, password } = formData;
+	console.log({ email, password });
 };
 
-const conditionForEmail = /^[\w.-]+@[\w-]+\.\w{2,}$/
-const conditionForPassword = /^(?=.*[0-9])(?=.*[A-Z])[a-zA-Z0-9]*$/
+const conditionForEmail = /^[\w.-]+@[\w-]+\.\w{2,}$/;
+const conditionForPassword = /^(?=.*[0-9])(?=.*[A-Z])[a-zA-Z0-9]*$/;
+
+const fieldsSchema = yup.object().shape({
+	email: yup
+		.string()
+		.required('Это обязательное поле.')
+		.matches(conditionForEmail, 'Неверный email. Пример: motya@gmail.com')
+		.max(255, 'Введите корректный email.'),
+	password: yup
+		.string()
+		.required('Это обязательное поле.')
+		.matches(
+			conditionForPassword,
+			'Слабый пароль. Используй латиницу, цифры и заглавные буквы.',
+		)
+		.max(255, 'Введите корректный пароль.')
+		.min(8, 'Слишком короткий пароль. Введите от 8 символов.'),
+	confirmPassword: yup
+		.string()
+		.required('Это обязательное поле.')
+		.oneOf([yup.ref('password')], 'Пароли должны совпадать.'),
+});
 
 const Form = () => {
-	const [loginError, setLoginError] = useState(null);
-	const [passwordError, setPasswordError] = useState(null);
-	const [confirmPasswordError, setConfirmPasswordError] = useState(null);
-
-	const { getState, updateState, resetState } = useStore();
-	const { email, password, confirmPassword } = getState();
+	const {
+		register,
+		handleSubmit,
+		formState: { errors, isValid, isDirty },
+	} = useForm({
+		defaultValues: {
+			email: '',
+			password: '',
+			confirmPassword: '',
+		},
+		resolver: yupResolver(fieldsSchema),
+		mode: 'onChange',
+	});
 
 	const submitButtonRef = useRef(null);
 
-	const isFormValid =
-		email &&
-		password &&
-		confirmPassword &&
-		!loginError &&
-		!passwordError &&
-		!confirmPasswordError;
+	const isFormValid = isValid && isDirty;
 
-	const onLoginChange = ({ target }) => {
-		updateState('email', target.value);
-
-		let newError = null;
-
-		if (target.value === '') {
-			newError = 'Это обязательное поле.';
-		} else if (!conditionForEmail.test(target.value)) {
-			newError = 'Неверный email. Пример: motya@gmail.com';
-		} else if (target.value.length > 255) {
-			newError = 'Введите корректный email.';
-		}
-
-		setLoginError(newError);
-	};
-
-	const onPasswordChange = ({ target }) => {
-		updateState('password', target.value);
-
-		let newError = null;
-
-		if (target.value === '') {
-			newError = 'Это обязательное поле.';
-		} else if (!conditionForPassword.test(target.value)) {
-			newError = 'Слабый пароль. Используй латиницу, цифры и заглавные буквы.';
-		} else if (target.value.length > 255) {
-			newError = 'Введите корректныей пароль.';
-		} else if (target.value.length < 8) {
-			newError = 'Слишком короткий пароль. Введите от 8 символов.';
-		}
-
-		setPasswordError(newError);
-	};
-
-	const onConfirmPasswordChange = ({ target }) => {
-		updateState('confirmPassword', target.value);
-
-		let newError = null;
-
-		if (target.value === '') {
-			newError = 'Это обязательное поле.';
-		} else if (target.value !== password) {
-			newError = 'Введите одинаковые пароли.';
-		}
-
-		setConfirmPasswordError(newError);
-	};
-
-	const onSubmit = (event) => {
-		event.preventDefault();
-
-		if (email && password && confirmPassword) {
-			sendFormData({ email, password });
-			resetState();
-		} else {
-			if (!email) {
-				setLoginError('Это обязательное поле');
-			}
-			if (!password) {
-				setPasswordError('Это обязательное поле');
-			}
-			if (!confirmPassword) {
-				setConfirmPasswordError('Это обязательное поле');
-			}
-		}
-	};
+	const loginError = errors.email?.message;
+	const passwordError = errors.password?.message;
+	const confirmPasswordError = errors.confirmPassword?.message;
 
 	useEffect(() => {
 		if (isFormValid && submitButtonRef.current) {
@@ -102,16 +64,12 @@ const Form = () => {
 
 	return (
 		<FormLayout
-			onSubmit={onSubmit}
-			email={email}
-			password={password}
-			confirmPassword={confirmPassword}
-			onLoginChange={onLoginChange}
+			sendFormData={sendFormData}
+			handleSubmit={handleSubmit}
 			loginError={loginError}
-			onPasswordChange={onPasswordChange}
 			passwordError={passwordError}
-			onConfirmPasswordChange={onConfirmPasswordChange}
 			confirmPasswordError={confirmPasswordError}
+			register={register}
 			submitButtonRef={submitButtonRef}
 		/>
 	);

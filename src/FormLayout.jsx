@@ -1,22 +1,18 @@
 import styles from './formLayout.module.css';
 
 export const FormLayout = ({
-	onSubmit,
-	email,
-	password,
-	confirmPassword,
-	onLoginChange,
+	sendFormData,
+	handleSubmit,
 	loginError,
-	onPasswordChange,
 	passwordError,
-	onConfirmPasswordChange,
 	confirmPasswordError,
+	register,
 	submitButtonRef,
 }) => {
 	return (
 		<div className={styles.form}>
 			<h2 className={styles.formTitle}>Регистрация</h2>
-			<form onSubmit={onSubmit}>
+			<form onSubmit={handleSubmit(sendFormData)}>
 				<div className={styles.inputGroup}>
 					<label className={styles.inputLabel}>Email</label>
 					<input
@@ -24,8 +20,7 @@ export const FormLayout = ({
 						name="email"
 						type="email"
 						placeholder="Введите email"
-						value={email}
-						onChange={onLoginChange}
+						{...register('email')}
 					/>
 					{loginError && (
 						<span className={styles.errorMessage}>{loginError}</span>
@@ -39,8 +34,7 @@ export const FormLayout = ({
 						name="password"
 						type="password"
 						placeholder="Введите пароль"
-						value={password}
-						onChange={onPasswordChange}
+						{...register('password')}
 					/>
 					{passwordError && (
 						<span className={styles.errorMessage}>{passwordError}</span>
@@ -54,8 +48,7 @@ export const FormLayout = ({
 						name="confirmPassword"
 						type="password"
 						placeholder="Повторите пароль"
-						value={confirmPassword}
-						onChange={onConfirmPasswordChange}
+						{...register('confirmPassword')}
 						disabled={passwordError}
 					/>
 					{confirmPasswordError && (
