@@ -9,42 +9,46 @@ import { useEffect, useState } from 'react';
 
 const TodoList = () => {
 	const [isSorting, setIsSorting] = useState(false);
-	const { task, setTasks, isLoading } = useRequestGetTasks();
+	const { task, isLoading } = useRequestGetTasks();
 	const { handleEditClick, handleSaveClick, editingId, isUpdating, setEditValue } =
-		useRequestUpdateValue(setTasks);
-	const { requestDeleteValue, isDeleting } = useRequestDeleteValue(setTasks);
+		useRequestUpdateValue();
+	const { requestDeleteValue, isDeleting } = useRequestDeleteValue();
 	const { requestCreateValue, isCreating, setEditNewValue, editNewValue } =
-		useRequestCreateValue(setTasks, setIsSorting);
+		useRequestCreateValue(setIsSorting);
 
-	const [filteredTasks, setFilteredTasks] = useState(task);
+	const [filteredTasks, setFilteredTasks] = useState([]);
 
 	useEffect(() => {
 		if (task) {
-			setFilteredTasks(task);
+			const taskArray = Object.entries(task).map(([id, taskObj]) => ({
+				id,
+				...taskObj,
+			}));
+			setFilteredTasks(taskArray);
 		}
 	}, [task]);
 
 	const getSearchValue = (value) => {
-		const searchValue = task.filter((taskObj) => {
-			return taskObj.title.toLowerCase().includes(value.toLowerCase());
-		});
-		setFilteredTasks(searchValue);
+		if (!task) return;
+
+		const taskArray = Object.entries(task).map(([id, taskObj]) => ({
+			id,
+			...taskObj,
+		}));
+
+		const searchResults = taskArray.filter((taskObj) =>
+			taskObj.title.toLowerCase().includes(value.toLowerCase()),
+		);
+
+		setFilteredTasks(searchResults);
 	};
 
 	const getSortingTasks = () => {
-		const sortedTasks = [...task].sort((a, b) => {
-			setIsSorting(true);
-			const titleA = a.title.toLowerCase();
-			const titleB = b.title.toLowerCase();
-			if (titleA > titleB) {
-				return 1;
-			}
-			if (titleA < titleB) {
-				return -1;
-			}
-			return 0;
-		});
+		const sortedTasks = [...filteredTasks].sort((a, b) =>
+			a.title.localeCompare(b.title),
+		);
 		setFilteredTasks(sortedTasks);
+		setIsSorting(true);
 	};
 
 	return (

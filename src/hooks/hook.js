@@ -1,55 +1,38 @@
 import { useState, useEffect } from 'react';
+import { ref, onValue, push, update, remove } from 'firebase/database';
+import { db } from '../firebase';
 
 export const useRequestGetTasks = () => {
-	const [task, setTasks] = useState([]);
-	const [isLoading, setIsLoading] = useState(false);
+	const [task, setTasks] = useState({});
+	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
-		setIsLoading(true);
+		const todosDbRef = ref(db, 'todos');
 
-		fetch(`http://localhost:3005/todos`)
-			.then((response) => response.json())
-			.then((responseJson) => {
-				setTasks(responseJson);
-			})
-			.catch((error) => {
-				console.error(error);
-			})
-			.finally(() => setIsLoading(false));
+		return onValue(todosDbRef, (snspshot) => {
+			const lodedTotos = snspshot.val() || {};
+
+			setTasks(lodedTotos);
+			setIsLoading(false);
+		});
 	}, []);
 
-	return { task, setTasks, isLoading };
+	return { task, isLoading };
 };
 
-export const useRequestUpdateValue = (setTasks) => {
+export const useRequestUpdateValue = () => {
 	const [isUpdating, setIsUpdating] = useState(false);
 	const [editingId, setEditingId] = useState(null);
 	const [editValue, setEditValue] = useState('');
 
 	const requestUpdateValue = (value, id) => {
-		setIsUpdating(true);
+		const todoValueDbRef = ref(db, `todos/${id}`);
 
-		fetch(`http://localhost:3005/todos/${id}`, {
-			method: 'PATCH',
-			headers: { 'Content-Type': 'application/json;charset=utf-8' },
-			body: JSON.stringify({
-				title: value,
-			}),
-		})
-			.then((rawResponse) => rawResponse.json())
-			.then((updatedTask) => {
-				setTasks((prevTask) =>
-					prevTask.map((task) =>
-						task.id === updatedTask.id ? updatedTask : task,
-					),
-				);
-			})
-			.catch((error) => {
-				console.error(error);
-			})
-			.finally(() => {
-				setIsUpdating(false), setEditValue('');
-			});
+		update(todoValueDbRef, {
+			title: value,
+		}).finally(() => {
+			setIsUpdating(false), setEditValue('');
+		});
 	};
 
 	const handleEditClick = (id, currentTitle) => {
@@ -71,46 +54,32 @@ export const useRequestUpdateValue = (setTasks) => {
 	};
 };
 
-export const useRequestDeleteValue = (setTasks) => {
+export const useRequestDeleteValue = () => {
 	const [isDeleting, setIsDeleting] = useState(false);
 
 	const requestDeleteValue = (id) => {
-		setIsDeleting(true);
+		const todoValueDbRef = ref(db, `todos/${id}`);
 
-		fetch(`http://localhost:3005/todos/${id}`, {
-			method: 'DELETE',
-		})
-			.then(() => {
-				setTasks((prevTask) => prevTask.filter((task) => task.id !== id));
-			})
-			.finally(() => setIsDeleting(false));
+		remove(todoValueDbRef).finally(() => setIsDeleting(false));
 	};
 
 	return { requestDeleteValue, isDeleting };
 };
 
-export const useRequestCreateValue = (setTasks, setIsSorting) => {
+export const useRequestCreateValue = (setIsSorting) => {
 	const [isCreating, setIsCreating] = useState(false);
 	const [editNewValue, setEditNewValue] = useState('');
+	const todosDbRef = ref(db, 'todos');
 
 	const requestCreateValue = () => {
 		if (editNewValue && editNewValue.trim().length) {
-			setIsCreating(true);
+			push(todosDbRef, {
+				title: editNewValue,
+			});
 
-			fetch(`http://localhost:3005/todos`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json;charset=utf-8' },
-				body: JSON.stringify({
-					title: editNewValue,
-				}),
-			})
-				.then((rawResponse) => rawResponse.json())
-				.then((newTask) => {
-					setTasks((prevTask) => [...prevTask, newTask]);
-				})
-				.finally(() => {
-					setIsCreating(false), setEditNewValue(''), setIsSorting(false);
-				});
+			setIsCreating(false);
+			setEditNewValue('');
+			setIsSorting(false);
 		}
 	};
 

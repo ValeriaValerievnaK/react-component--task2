@@ -62,16 +62,6 @@
 	}
 }
 
-.error {
-	color: #ff6b6b;
-	background-color: #f0f8ff;
-	padding: 12px;
-	border-radius: 6px;
-
-	text-align: center;
-	margin: 20px 0;
-	font-weight: bold;
-}
 
 .editButton {
 	background-color: #6687a7;
@@ -143,7 +133,6 @@
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s;
-    white-space: nowrap;
 }
 
 .sortButton:hover {
