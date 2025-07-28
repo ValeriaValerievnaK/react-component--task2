@@ -1,27 +1,150 @@
+import {
+	useRequestGetTasks,
+	useRequestUpdateValue,
+	useRequestDeleteValue,
+	useRequestCreateValue,
+} from './hooks/hook';
+import styles from './todoList.module.css';
 import { useEffect, useState } from 'react';
-import TodoListLayout from './TodoListLayout';
-
-const randomNum = Math.floor(Math.random() * 9) + 1;
 
 const TodoList = () => {
-	const [task, setTasks] = useState(null);
-	const [isLoading, setIsLoading] = useState(false);
+	const [isSorting, setIsSorting] = useState(false);
+	const { task, setTasks, isLoading } = useRequestGetTasks();
+	const { handleEditClick, handleSaveClick, editingId, isUpdating, setEditValue } =
+		useRequestUpdateValue(setTasks);
+	const { requestDeleteValue, isDeleting } = useRequestDeleteValue(setTasks);
+	const { requestCreateValue, isCreating, setEditNewValue, editNewValue } =
+		useRequestCreateValue(setTasks, setIsSorting);
+
+	const [filteredTasks, setFilteredTasks] = useState(task);
 
 	useEffect(() => {
-		setIsLoading(true);
+		if (task) {
+			setFilteredTasks(task);
+		}
+	}, [task]);
 
-		fetch(`https://jsonplaceholder.typicode.com/todos/${randomNum}`)
-			.then((response) => response.json())
-			.then((responseJson) => {
-				setTasks(responseJson);
-			})
-			.catch((error) => {
-				console.error(error);
-			})
-			.finally(() => setIsLoading(false));
-	}, []);
+	const getSearchValue = (value) => {
+		const searchValue = task.filter((taskObj) => {
+			return taskObj.title.toLowerCase().includes(value.toLowerCase());
+		});
+		setFilteredTasks(searchValue);
+	};
 
-	return <TodoListLayout isLoading={isLoading} task={task} />;
+	const getSortingTasks = () => {
+		const sortedTasks = [...task].sort((a, b) => {
+			setIsSorting(true);
+			const titleA = a.title.toLowerCase();
+			const titleB = b.title.toLowerCase();
+			if (titleA > titleB) {
+				return 1;
+			}
+			if (titleA < titleB) {
+				return -1;
+			}
+			return 0;
+		});
+		setFilteredTasks(sortedTasks);
+	};
+
+	return (
+		<>
+			<h1 className={styles.header}>Список задач</h1>
+			<button
+				className={styles.sortButton}
+				onClick={getSortingTasks}
+				disabled={isSorting}
+			>
+				Отсортировать от А до Я
+			</button>
+			<div className={styles.todos}>
+				{isLoading ? (
+					<div className={styles.loader}></div>
+				) : (
+					<table className={styles.todoTable}>
+						<thead className={styles.serch}>
+							<tr>
+								<td colSpan="3">
+									<input
+										type="text"
+										placeholder="Начни вводить, чтобы найти задачу..."
+										onChange={(e) => getSearchValue(e.target.value)}
+									/>
+								</td>
+							</tr>
+							<tr>
+								<th>Задача</th>
+								<th colSpan="2">Действия</th>
+							</tr>
+						</thead>
+						<tbody>
+							{filteredTasks.map(({ id, title }) => (
+								<tr key={id}>
+									<td>
+										{editingId === id ? (
+											<input
+												type="text"
+												onChange={(e) =>
+													setEditValue(e.target.value)
+												}
+											/>
+										) : (
+											title
+										)}
+									</td>
+									<td>
+										{editingId === id ? (
+											<button
+												className={styles.editButton}
+												onClick={() => handleSaveClick(id)}
+												disabled={isUpdating}
+											>
+												Сохранить
+											</button>
+										) : (
+											<button
+												className={styles.editButton}
+												onClick={() => handleEditClick(id, title)}
+											>
+												Изменить
+											</button>
+										)}
+									</td>
+									<td>
+										<button
+											className={styles.deleteButton}
+											onClick={() => requestDeleteValue(id)}
+											disabled={isDeleting}
+										>
+											Удалить
+										</button>
+									</td>
+								</tr>
+							))}
+							<tr>
+								<td>
+									<input
+										type="text"
+										value={editNewValue}
+										onChange={(e) => setEditNewValue(e.target.value)}
+									/>
+								</td>
+								<td colSpan="2">
+									<button
+										className={styles.createButton}
+										onClick={requestCreateValue}
+										disabled={isCreating}
+									>
+										Добавить задачу
+									</button>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				)}
+			</div>
+		</>
+	);
 };
 
 export default TodoList;
