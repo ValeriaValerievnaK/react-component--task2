@@ -1,20 +1,24 @@
-import {
-	useRequestGetTasks,
-	useRequestUpdateValue,
-	useRequestDeleteValue,
-	useRequestCreateValue,
-} from './hooks/hook';
+import { useHandleHook } from './hooks/hook';
+
 import styles from './todoList.module.css';
 import { useEffect, useState } from 'react';
 
 const TodoList = () => {
-	const [isSorting, setIsSorting] = useState(false);
-	const { task, setTasks, isLoading } = useRequestGetTasks();
-	const { handleEditClick, handleSaveClick, editingId, isUpdating, setEditValue } =
-		useRequestUpdateValue(setTasks);
-	const { requestDeleteValue, isDeleting } = useRequestDeleteValue(setTasks);
-	const { requestCreateValue, isCreating, setEditNewValue, editNewValue } =
-		useRequestCreateValue(setTasks, setIsSorting);
+	const {
+		task,
+		isLoading,
+		handleSaveClick,
+		handleEditClick,
+		isUpdating,
+		editingId,
+		editValue,
+		requestDeleteValue,
+		isDeleting,
+		requestCreateValue,
+		isCreating,
+		setEditNewValue,
+		editNewValue,
+	} = useHandleHook();
 
 	const [filteredTasks, setFilteredTasks] = useState(task);
 
@@ -33,7 +37,6 @@ const TodoList = () => {
 
 	const getSortingTasks = () => {
 		const sortedTasks = [...task].sort((a, b) => {
-			setIsSorting(true);
 			const titleA = a.title.toLowerCase();
 			const titleB = b.title.toLowerCase();
 			if (titleA > titleB) {
@@ -50,11 +53,7 @@ const TodoList = () => {
 	return (
 		<>
 			<h1 className={styles.header}>Список задач</h1>
-			<button
-				className={styles.sortButton}
-				onClick={getSortingTasks}
-				disabled={isSorting}
-			>
+			<button className={styles.sortButton} onClick={getSortingTasks}>
 				Отсортировать от А до Я
 			</button>
 			<div className={styles.todos}>
@@ -84,8 +83,9 @@ const TodoList = () => {
 										{editingId === id ? (
 											<input
 												type="text"
+												value={editValue ?? title}
 												onChange={(e) =>
-													setEditValue(e.target.value)
+													isLoading(e.target.value)
 												}
 											/>
 										) : (

@@ -1,9 +1,19 @@
 import { useState, useEffect } from 'react';
 
-export const useRequestGetTasks = () => {
+export const useHandleHook = () => {
 	const [task, setTasks] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
 
+	const [isUpdating, setIsUpdating] = useState(false);
+	const [editingId, setEditingId] = useState(null);
+	const [editValue, setEditValue] = useState('');
+
+	const [isDeleting, setIsDeleting] = useState(false);
+
+	const [isCreating, setIsCreating] = useState(false);
+	const [editNewValue, setEditNewValue] = useState('');
+
+	// забрали данные с бэка
 	useEffect(() => {
 		setIsLoading(true);
 
@@ -16,16 +26,11 @@ export const useRequestGetTasks = () => {
 				console.error(error);
 			})
 			.finally(() => setIsLoading(false));
+
+		setIsLoading(false);
 	}, []);
 
-	return { task, setTasks, isLoading };
-};
-
-export const useRequestUpdateValue = (setTasks) => {
-	const [isUpdating, setIsUpdating] = useState(false);
-	const [editingId, setEditingId] = useState(null);
-	const [editValue, setEditValue] = useState('');
-
+	// Обновить значение
 	const requestUpdateValue = (value, id) => {
 		setIsUpdating(true);
 
@@ -52,28 +57,17 @@ export const useRequestUpdateValue = (setTasks) => {
 			});
 	};
 
-	const handleEditClick = (id, currentTitle) => {
-		setEditingId(id);
-		setEditValue(currentTitle.trim());
-	};
-
 	const handleSaveClick = (id) => {
 		requestUpdateValue(editValue, id);
 		setEditingId(null);
 	};
 
-	return {
-		handleEditClick,
-		handleSaveClick,
-		editingId,
-		isUpdating,
-		setEditValue,
+	const handleEditClick = (id, currentTitle) => {
+		setEditingId(id);
+		setEditValue(currentTitle.trim());
 	};
-};
 
-export const useRequestDeleteValue = (setTasks) => {
-	const [isDeleting, setIsDeleting] = useState(false);
-
+	// Удалить значение
 	const requestDeleteValue = (id) => {
 		setIsDeleting(true);
 
@@ -86,13 +80,7 @@ export const useRequestDeleteValue = (setTasks) => {
 			.finally(() => setIsDeleting(false));
 	};
 
-	return { requestDeleteValue, isDeleting };
-};
-
-export const useRequestCreateValue = (setTasks, setIsSorting) => {
-	const [isCreating, setIsCreating] = useState(false);
-	const [editNewValue, setEditNewValue] = useState('');
-
+	// Создать значение
 	const requestCreateValue = () => {
 		if (editNewValue && editNewValue.trim().length) {
 			setIsCreating(true);
@@ -109,10 +97,24 @@ export const useRequestCreateValue = (setTasks, setIsSorting) => {
 					setTasks((prevTask) => [...prevTask, newTask]);
 				})
 				.finally(() => {
-					setIsCreating(false), setEditNewValue(''), setIsSorting(false);
+					setIsCreating(false), setEditNewValue('');
 				});
 		}
 	};
 
-	return { requestCreateValue, isCreating, setEditNewValue, editNewValue };
+	return {
+		task,
+		isLoading,
+		handleSaveClick,
+		handleEditClick,
+		isUpdating,
+		editingId,
+		editValue,
+		requestDeleteValue,
+		isDeleting,
+		requestCreateValue,
+		isCreating,
+		setEditNewValue,
+		editNewValue,
+	};
 };
