@@ -4,6 +4,7 @@ import styles from './pageTodo.module.css';
 
 import { TitleHeader } from './TitleHeader';
 import { Button } from './Button';
+import NotFound from './NotFound';
 
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -25,7 +26,7 @@ const PageTodo = () => {
 
 	const selectedTask = task.find((i) => i.id === parseInt(id));
 
-	if (!selectedTask) return <div>Задача не найдена</div>;
+	if (!selectedTask) return <NotFound/>;
 
 	const { id: selectedId, title: selectedTitle } = selectedTask;
 
