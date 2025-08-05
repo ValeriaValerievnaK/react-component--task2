@@ -1,19 +1,19 @@
-import { useHandleHook } from './hooks/hook';
+import { useHandleHook } from '../hooks/hook';
 
 import styles from './todoList.module.css';
 import { useEffect, useState } from 'react';
 
+import { TitleHeader } from './TitleHeader';
+import { Button } from './Button';
+
+import { useNavigate } from 'react-router-dom';
+
 const TodoList = () => {
+	const navigate = useNavigate();
+
 	const {
 		task,
 		isLoading,
-		handleSaveClick,
-		handleEditClick,
-		isUpdating,
-		editingId,
-		editValue,
-		requestDeleteValue,
-		isDeleting,
 		requestCreateValue,
 		isCreating,
 		setEditNewValue,
@@ -39,23 +39,27 @@ const TodoList = () => {
 		const sortedTasks = [...task].sort((a, b) => {
 			const titleA = a.title.toLowerCase();
 			const titleB = b.title.toLowerCase();
+
 			if (titleA > titleB) {
 				return 1;
 			}
+
 			if (titleA < titleB) {
 				return -1;
 			}
+
 			return 0;
 		});
+
 		setFilteredTasks(sortedTasks);
 	};
 
 	return (
 		<>
-			<h1 className={styles.header}>Список задач</h1>
-			<button className={styles.sortButton} onClick={getSortingTasks}>
+			<TitleHeader>Список задач</TitleHeader>
+			<Button className={styles.sortButton} onClick={getSortingTasks}>
 				Отсортировать от А до Я
-			</button>
+			</Button>
 			<div className={styles.todos}>
 				{isLoading ? (
 					<div className={styles.loader}></div>
@@ -71,53 +75,15 @@ const TodoList = () => {
 									/>
 								</td>
 							</tr>
-							<tr>
-								<th>Задача</th>
-								<th colSpan="2">Действия</th>
-							</tr>
 						</thead>
 						<tbody>
 							{filteredTasks.map(({ id, title }) => (
 								<tr key={id}>
-									<td>
-										{editingId === id ? (
-											<input
-												type="text"
-												value={editValue ?? title}
-												onChange={(e) =>
-													isLoading(e.target.value)
-												}
-											/>
-										) : (
-											title
-										)}
-									</td>
-									<td>
-										{editingId === id ? (
-											<button
-												className={styles.editButton}
-												onClick={() => handleSaveClick(id)}
-												disabled={isUpdating}
-											>
-												Сохранить
-											</button>
-										) : (
-											<button
-												className={styles.editButton}
-												onClick={() => handleEditClick(id, title)}
-											>
-												Изменить
-											</button>
-										)}
-									</td>
-									<td>
-										<button
-											className={styles.deleteButton}
-											onClick={() => requestDeleteValue(id)}
-											disabled={isDeleting}
-										>
-											Удалить
-										</button>
+									<td
+										onClick={() => navigate(`/task/${id}`)}
+										colSpan="3"
+									>
+										{title}
 									</td>
 								</tr>
 							))}
@@ -127,16 +93,17 @@ const TodoList = () => {
 										type="text"
 										value={editNewValue}
 										onChange={(e) => setEditNewValue(e.target.value)}
+										placeholder="Введите новую задачу..."
 									/>
 								</td>
-								<td colSpan="2">
-									<button
+								<td>
+									<Button
 										className={styles.createButton}
 										onClick={requestCreateValue}
 										disabled={isCreating}
 									>
-										Добавить задачу
-									</button>
+										Добавить
+									</Button>
 								</td>
 							</tr>
 						</tbody>

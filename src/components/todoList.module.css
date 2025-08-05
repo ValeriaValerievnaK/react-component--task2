@@ -7,12 +7,6 @@
 	width: 100%;
 }
 
-.header {
-	color: #244258;
-	text-align: center;
-	margin-bottom: 20px;
-}
-
 .todoTable {
 	width: 100%;
 	border-spacing: 5px 15px;
@@ -25,6 +19,11 @@
 	text-align: left;
 	border-radius: 5px;
 	text-align: center;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 200px;
+	cursor: pointer;
 }
 
 .todoTable th {
@@ -73,34 +72,6 @@
 	font-weight: bold;
 }
 
-.editButton {
-	background-color: #6687a7;
-	color: white;
-	border: none;
-	padding: 8px 16px;
-	border-radius: 4px;
-	cursor: pointer;
-	transition: background-color 0.3s;
-}
-
-.editButton:hover {
-	background-color: #325a80;
-}
-
-.deleteButton {
-	background-color: #da4f89;
-	color: white;
-	border: none;
-	padding: 8px 16px;
-	border-radius: 4px;
-	cursor: pointer;
-	transition: background-color 0.3s;
-}
-
-.deleteButton:hover {
-	background-color: #7e2f50;
-}
-
 .todoTable input[type='text'] {
 	width: 100%;
 	padding: 8px 12px;
@@ -134,25 +105,24 @@
 }
 
 .sortButton {
-    right: 2px;
-    margin-bottom: 10px;
-    background-color: #5f9ea0;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    white-space: nowrap;
+	right: 2px;
+	margin-bottom: 10px;
+	background-color: #5f9ea0;
+	color: white;
+	border: none;
+	padding: 8px 16px;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: background-color 0.3s;
+	white-space: nowrap;
 }
 
 .sortButton:hover {
-    background-color: #4a7b7d;
+	background-color: #4a7b7d;
 }
 
 .sortButton:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-    opacity: 0.7;
+	background-color: #cccccc;
+	cursor: not-allowed;
+	opacity: 0.7;
 }
-

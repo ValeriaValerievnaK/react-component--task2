@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const useHandleHook = () => {
 	const [task, setTasks] = useState([]);
@@ -13,7 +14,8 @@ export const useHandleHook = () => {
 	const [isCreating, setIsCreating] = useState(false);
 	const [editNewValue, setEditNewValue] = useState('');
 
-	// забрали данные с бэка
+	const navigate = useNavigate();
+
 	useEffect(() => {
 		setIsLoading(true);
 
@@ -26,11 +28,8 @@ export const useHandleHook = () => {
 				console.error(error);
 			})
 			.finally(() => setIsLoading(false));
-
-		setIsLoading(false);
 	}, []);
 
-	// Обновить значение
 	const requestUpdateValue = (value, id) => {
 		setIsUpdating(true);
 
@@ -67,7 +66,6 @@ export const useHandleHook = () => {
 		setEditValue(currentTitle.trim());
 	};
 
-	// Удалить значение
 	const requestDeleteValue = (id) => {
 		setIsDeleting(true);
 
@@ -77,10 +75,14 @@ export const useHandleHook = () => {
 			.then(() => {
 				setTasks((prevTask) => prevTask.filter((task) => task.id !== id));
 			})
-			.finally(() => setIsDeleting(false));
+			.catch((error) => {
+				console.error(error);
+			})
+			.finally(() => {
+				setIsDeleting(false), navigate(`/`);
+			});
 	};
 
-	// Создать значение
 	const requestCreateValue = () => {
 		if (editNewValue && editNewValue.trim().length) {
 			setIsCreating(true);
@@ -95,6 +97,9 @@ export const useHandleHook = () => {
 				.then((rawResponse) => rawResponse.json())
 				.then((newTask) => {
 					setTasks((prevTask) => [...prevTask, newTask]);
+				})
+				.catch((error) => {
+					console.error(error);
 				})
 				.finally(() => {
 					setIsCreating(false), setEditNewValue('');
@@ -116,5 +121,6 @@ export const useHandleHook = () => {
 		isCreating,
 		setEditNewValue,
 		editNewValue,
+		setEditValue,
 	};
 };
