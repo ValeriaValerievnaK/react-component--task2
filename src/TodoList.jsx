@@ -77,7 +77,7 @@ const TodoList = () => {
 							</tr>
 						</thead>
 						<tbody>
-							{filteredTasks.map(({ id, title }) => (
+							{(filteredTasks || []).map(({ id, title }) => (
 								<tr key={id}>
 									<td>
 										{editingId === id ? (

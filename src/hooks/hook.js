@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
+import { useContext } from 'react';
+import { AppContext } from '../context/context';
 
 export const useHandleHook = () => {
-	const [task, setTasks] = useState([]);
+	const [task, setTasks] = useState(null);
 	const [isLoading, setIsLoading] = useState(false);
 
 	const [isUpdating, setIsUpdating] = useState(false);
@@ -13,22 +15,17 @@ export const useHandleHook = () => {
 	const [isCreating, setIsCreating] = useState(false);
 	const [editNewValue, setEditNewValue] = useState('');
 
-	// забрали данные с бэка
+	// забрали данные из камтекста
+	const { value: contextValue } = useContext(AppContext);
+
 	useEffect(() => {
 		setIsLoading(true);
 
-		fetch(`http://localhost:3005/todos`)
-			.then((response) => response.json())
-			.then((responseJson) => {
-				setTasks(responseJson);
-			})
-			.catch((error) => {
-				console.error(error);
-			})
-			.finally(() => setIsLoading(false));
-
-		setIsLoading(false);
-	}, []);
+		if (contextValue) {
+			setTasks(contextValue);
+			setIsLoading(false);
+		}
+	}, [contextValue]);
 
 	// Обновить значение
 	const requestUpdateValue = (value, id) => {
