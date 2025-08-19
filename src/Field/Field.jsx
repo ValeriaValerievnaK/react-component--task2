@@ -1,33 +1,10 @@
 import FieldLayout from './FieldLayout';
 
 export const Field = ({
-	field,
-	setField,
-	currentPlayer,
-	setCurrentPlayer,
-	isGameEnded,
-	setIsGameEnded,
-	setIsDraw,
-	checkWin,
+handleClickFieds
 }) => {
-	const handleClickFieds = (index) => {
-		if (field[index] === '' && !isGameEnded) {
-			const newFields = field.slice();
-			newFields[index] = currentPlayer;
 
-			setField(newFields);
-
-			if (checkWin(newFields, currentPlayer)) {
-				setIsGameEnded(true);
-			} else if (!newFields.includes('') && !isGameEnded) {
-				setIsDraw(true);
-			} else {
-				setCurrentPlayer(currentPlayer === 'X' ? 'O' : 'X');
-			}
-		}
-	};
-
-	return <FieldLayout field={field} handleClickFieds={handleClickFieds} />;
+	return <FieldLayout handleClickFieds={handleClickFieds} />;
 };
 
 export default Field;

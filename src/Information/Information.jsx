@@ -1,7 +1,11 @@
 import InformationLayout from './InformationLayout';
 import PropTypes from 'prop-types';
+import { store } from './../store';
 
-export const Information = ({ isDraw, isGameEnded, currentPlayer }) => {
+export const Information = () => {
+	const { getState } = store;
+	const { isGameEnded, isDraw } = getState();
+
 	let textContent;
 
 	if (isDraw) {
@@ -11,8 +15,8 @@ export const Information = ({ isDraw, isGameEnded, currentPlayer }) => {
 	} else {
 		textContent = 'Сейчас ход:';
 	}
-	
-	return <InformationLayout textContent={textContent} currentPlayer={currentPlayer} />;
+
+	return <InformationLayout textContent={textContent} />;
 };
 
 Information.propTypes = {
