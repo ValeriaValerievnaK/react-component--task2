@@ -1,10 +1,10 @@
 import styles from './fieldLayout.module.css';
 import PropTypes from 'prop-types';
-import { store } from './../store';
+import { useSelector } from 'react-redux';
+import { selectField } from './../store/selects';
 
 export const FieldLayout = ({ handleClickFieds }) => {
-	const { getState } = store;
-	const { field } = getState();
+	const field = useSelector(selectField);
 
 	return (
 		<div className={styles.fieldContainer}>

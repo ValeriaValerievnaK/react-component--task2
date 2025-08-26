@@ -3,15 +3,10 @@ import Information from './/Information/Information';
 import Field from './/Field/Field';
 import PropTypes from 'prop-types';
 
-export const GameLayout = ({
-	handleClickGame,
-	handleClickFieds,
-}) => {
-
+export const GameLayout = ({ handleClickGame, handleClickFieds }) => {
 	return (
 		<div className={styles.container}>
-			<Information
-			/>
+			<Information />
 			<Field handleClickFieds={handleClickFieds} />
 			<button className={styles.button} onClick={handleClickGame}>
 				Начать заново

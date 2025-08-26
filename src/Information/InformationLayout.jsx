@@ -1,10 +1,10 @@
 import styles from './informationLayout.module.css';
 import PropTypes from 'prop-types';
-import { store } from './../store';
+import { useSelector } from 'react-redux';
+import { selectCurrentPlayer } from './../store/selects';
 
-export const InformationLayout = ({ textContent}) => {
-	const { getState } = store;
-	const { currentPlayer } = getState();
+export const InformationLayout = ({ textContent }) => {
+	const currentPlayer = useSelector(selectCurrentPlayer);
 
 	return (
 		<div className={styles.infoContainer}>

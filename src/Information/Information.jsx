@@ -1,10 +1,11 @@
 import InformationLayout from './InformationLayout';
 import PropTypes from 'prop-types';
-import { store } from './../store';
+import { useSelector } from 'react-redux';
+import { selectIsGameEnded, selectIsDraw } from './../store/selects';
 
 export const Information = () => {
-	const { getState } = store;
-	const { isGameEnded, isDraw } = getState();
+	const isGameEnded = useSelector(selectIsGameEnded);
+	const isDraw = useSelector(selectIsDraw);
 
 	let textContent;
 

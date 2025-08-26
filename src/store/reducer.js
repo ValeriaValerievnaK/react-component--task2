@@ -1,4 +1,4 @@
-import { INITIAL_FIELD_STATE } from './constants';
+import { INITIAL_FIELD_STATE } from '../constants';
 
 export const initialState = {
 	currentPlayer: 'X',
