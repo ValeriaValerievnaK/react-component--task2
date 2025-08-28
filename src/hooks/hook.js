@@ -1,120 +1,50 @@
-import { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectEditValue, selectEditNewValue } from './../store/selects';
+import {
+	setEditingId,
+	setEditValue,
+	deleteDataAsync,
+	updateDataAsync,
+	requestDataAsync,
+} from './../store/action';
 
 export const useHandleHook = () => {
-	const [task, setTasks] = useState([]);
-	const [isLoading, setIsLoading] = useState(false);
+	const dispatch = useDispatch();
 
-	const [isUpdating, setIsUpdating] = useState(false);
-	const [editingId, setEditingId] = useState(null);
-	const [editValue, setEditValue] = useState('');
+	const editValue = useSelector(selectEditValue);
+	const editNewValue = useSelector(selectEditNewValue);
 
-	const [isDeleting, setIsDeleting] = useState(false);
-
-	const [isCreating, setIsCreating] = useState(false);
-	const [editNewValue, setEditNewValue] = useState('');
-
-	// забрали данные с бэка
-	useEffect(() => {
-		setIsLoading(true);
-
-		fetch(`http://localhost:3005/todos`)
-			.then((response) => response.json())
-			.then((responseJson) => {
-				setTasks(responseJson);
-			})
-			.catch((error) => {
-				console.error(error);
-			})
-			.finally(() => setIsLoading(false));
-
-		setIsLoading(false);
-	}, []);
-
-	// Обновить значение
+	// Обновить значение  и обработчики для них (выбор и сохранить)
 	const requestUpdateValue = (value, id) => {
-		setIsUpdating(true);
-
-		fetch(`http://localhost:3005/todos/${id}`, {
-			method: 'PATCH',
-			headers: { 'Content-Type': 'application/json;charset=utf-8' },
-			body: JSON.stringify({
-				title: value,
-			}),
-		})
-			.then((rawResponse) => rawResponse.json())
-			.then((updatedTask) => {
-				setTasks((prevTask) =>
-					prevTask.map((task) =>
-						task.id === updatedTask.id ? updatedTask : task,
-					),
-				);
-			})
-			.catch((error) => {
-				console.error(error);
-			})
-			.finally(() => {
-				setIsUpdating(false), setEditValue('');
-			});
+		dispatch(updateDataAsync(value, id));
 	};
 
 	const handleSaveClick = (id) => {
 		requestUpdateValue(editValue, id);
-		setEditingId(null);
+		dispatch(setEditingId(null));
 	};
 
 	const handleEditClick = (id, currentTitle) => {
-		setEditingId(id);
-		setEditValue(currentTitle.trim());
+		dispatch(setEditingId(id));
+		dispatch(setEditValue(currentTitle.trim()));
 	};
 
 	// Удалить значение
 	const requestDeleteValue = (id) => {
-		setIsDeleting(true);
-
-		fetch(`http://localhost:3005/todos/${id}`, {
-			method: 'DELETE',
-		})
-			.then(() => {
-				setTasks((prevTask) => prevTask.filter((task) => task.id !== id));
-			})
-			.finally(() => setIsDeleting(false));
+		dispatch(deleteDataAsync(id));
 	};
 
 	// Создать значение
 	const requestCreateValue = () => {
 		if (editNewValue && editNewValue.trim().length) {
-			setIsCreating(true);
-
-			fetch(`http://localhost:3005/todos`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json;charset=utf-8' },
-				body: JSON.stringify({
-					title: editNewValue,
-				}),
-			})
-				.then((rawResponse) => rawResponse.json())
-				.then((newTask) => {
-					setTasks((prevTask) => [...prevTask, newTask]);
-				})
-				.finally(() => {
-					setIsCreating(false), setEditNewValue('');
-				});
+			dispatch(requestDataAsync(editNewValue));
 		}
 	};
 
 	return {
-		task,
-		isLoading,
 		handleSaveClick,
 		handleEditClick,
-		isUpdating,
-		editingId,
-		editValue,
 		requestDeleteValue,
-		isDeleting,
 		requestCreateValue,
-		isCreating,
-		setEditNewValue,
-		editNewValue,
 	};
 };

@@ -1,60 +1,93 @@
 import { useHandleHook } from './hooks/hook';
-
 import styles from './todoList.module.css';
 import { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+	selectLoading,
+	selectUpdating,
+	selectEditingId,
+	selectEditValue,
+	selectIsDeleting,
+	selectIsCreating,
+	selectEditNewValue,
+	selectGetData,
+} from './store/selects';
+import {
+	setEditNewValue,
+	setEditValue,
+	getDataAsync,
+} from './store/action';
 
 const TodoList = () => {
-	const {
-		task,
-		isLoading,
-		handleSaveClick,
-		handleEditClick,
-		isUpdating,
-		editingId,
-		editValue,
-		requestDeleteValue,
-		isDeleting,
-		requestCreateValue,
-		isCreating,
-		setEditNewValue,
-		editNewValue,
-	} = useHandleHook();
+	const dispatch = useDispatch();
 
-	const [filteredTasks, setFilteredTasks] = useState(task);
+	const data = useSelector(selectGetData);
+	const isLoading = useSelector(selectLoading);
+	const isUpdating = useSelector(selectUpdating);
+	const editingId = useSelector(selectEditingId);
+	const editValue = useSelector(selectEditValue);
+	const isDeleting = useSelector(selectIsDeleting);
+	const isCreating = useSelector(selectIsCreating);
+	const editNewValue = useSelector(selectEditNewValue);
+
+	const { handleSaveClick, handleEditClick, requestDeleteValue, requestCreateValue } =
+		useHandleHook();
+
+	const [filteredTasks, setFilteredTasks] = useState([]);
+	const [isAsc, setIsAsc] = useState(true);
 
 	useEffect(() => {
-		if (task) {
-			setFilteredTasks(task);
+		dispatch(getDataAsync);
+	}, []);
+
+	useEffect(() => {
+		if (data) {
+			setFilteredTasks(data);
+		} else {
+			setFilteredTasks([]);
 		}
-	}, [task]);
+	}, [data]);
+
 
 	const getSearchValue = (value) => {
-		const searchValue = task.filter((taskObj) => {
-			return taskObj.title.toLowerCase().includes(value.toLowerCase());
-		});
-		setFilteredTasks(searchValue);
+		if (!data) return;
+
+		const taskArray = Object.entries(data).map(([id, taskObj]) => ({
+			id,
+			...taskObj,
+		}));
+
+		const searchResults = taskArray.filter((taskObj) =>
+			taskObj.title.toLowerCase().includes(value.toLowerCase()),
+		);
+
+		setFilteredTasks(searchResults);
 	};
 
 	const getSortingTasks = () => {
-		const sortedTasks = [...task].sort((a, b) => {
+		const sortedTasks = [...filteredTasks].sort((a, b) => {
 			const titleA = a.title.toLowerCase();
 			const titleB = b.title.toLowerCase();
+
 			if (titleA > titleB) {
-				return 1;
+				return isAsc ? 1 : -1;
 			}
 			if (titleA < titleB) {
-				return -1;
+				return isAsc ? -1 : 1;
 			}
+			
 			return 0;
 		});
+
 		setFilteredTasks(sortedTasks);
+		setIsAsc(!isAsc);
 	};
 
 	return (
 		<>
 			<h1 className={styles.header}>Список задач</h1>
 			<button className={styles.sortButton} onClick={getSortingTasks}>
-				Отсортировать от А до Я
+				Отсортировать
 			</button>
 			<div className={styles.todos}>
 				{isLoading ? (
@@ -85,7 +118,7 @@ const TodoList = () => {
 												type="text"
 												value={editValue ?? title}
 												onChange={(e) =>
-													isLoading(e.target.value)
+													dispatch(setEditValue(e.target.value))
 												}
 											/>
 										) : (
@@ -126,7 +159,9 @@ const TodoList = () => {
 									<input
 										type="text"
 										value={editNewValue}
-										onChange={(e) => setEditNewValue(e.target.value)}
+										onChange={(e) =>
+											dispatch(setEditNewValue(e.target.value))
+										}
 									/>
 								</td>
 								<td colSpan="2">
