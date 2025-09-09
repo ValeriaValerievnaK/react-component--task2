@@ -1,24 +1,25 @@
 import InformationLayout from './InformationLayout';
 import PropTypes from 'prop-types';
-import { useSelector } from 'react-redux';
-import { selectIsGameEnded, selectIsDraw } from './../store/selects';
+import { connect } from 'react-redux';
+import { Component } from 'react';
 
-export const Information = () => {
-	const isGameEnded = useSelector(selectIsGameEnded);
-	const isDraw = useSelector(selectIsDraw);
-
-	let textContent;
-
-	if (isDraw) {
-		textContent = 'Ничья!';
-	} else if (isGameEnded) {
-		textContent = 'Победил:';
-	} else {
-		textContent = 'Сейчас ход:';
+class Information extends Component {
+	constructor(props) {
+		super(props);
 	}
 
-	return <InformationLayout textContent={textContent} />;
-};
+	render() {
+		const { isDraw, isGameEnded } = this.props;
+
+		const textContent = isDraw ? 'Ничья!' : isGameEnded ? 'Победил' : 'Сейчас ход:';
+		return <InformationLayout textContent={textContent} />;
+	}
+}
+
+const mapStateToProps = (state) => ({
+	isDraw: state.isDraw,
+	isGameEnded: state.isGameEnded,
+});
 
 Information.propTypes = {
 	isDraw: PropTypes.bool.isRequired,
@@ -26,4 +27,4 @@ Information.propTypes = {
 	currentPlayer: PropTypes.oneOf(['X', 'O']).isRequired,
 };
 
-export default Information;
+export default connect(mapStateToProps)(Information);
