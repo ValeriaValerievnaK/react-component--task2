@@ -1,24 +1,33 @@
 import styles from './informationLayout.module.css';
 import PropTypes from 'prop-types';
-import { useSelector } from 'react-redux';
-import { selectCurrentPlayer } from './../store/selects';
+import { connect } from 'react-redux';
+import { Component } from 'react';
 
-export const InformationLayout = ({ textContent }) => {
-	const currentPlayer = useSelector(selectCurrentPlayer);
+class InformationLayout extends Component {
+	constructor(props) {
+		super(props);
+	}
 
-	return (
-		<div className={styles.infoContainer}>
+	render() {
+		const { textContent, currentPlayer } = this.props;
+
+		return <div className={styles.infoContainer}>
 			<h1 className={styles.title}>{textContent}</h1>
 			{!textContent.includes('Ничья') && (
 				<div className={styles.playerTurn}>{currentPlayer}</div>
 			)}
-		</div>
-	);
-};
+		</div>;
+	}
+}
+
+const mapStateToProps = (state) => ({
+	currentPlayer: state.currentPlayer,
+});
+
 
 InformationLayout.propTypes = {
 	textContent: PropTypes.string.isRequired,
 	currentPlayer: PropTypes.oneOf(['X', 'O']).isRequired,
 };
 
-export default InformationLayout;
+export default connect(mapStateToProps)(InformationLayout);

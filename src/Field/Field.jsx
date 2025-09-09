@@ -1,10 +1,14 @@
 import FieldLayout from './FieldLayout';
+import { Component } from 'react';
 
-export const Field = ({
-handleClickFieds
-}) => {
+export default class Field extends Component {
+	constructor(props) {
+		super(props);
+	}
 
-	return <FieldLayout handleClickFieds={handleClickFieds} />;
-};
+	render() {
+		const { handleClickFieds } = this.props;
 
-export default Field;
+		return <FieldLayout handleClickFieds={handleClickFieds} />;
+	}
+}

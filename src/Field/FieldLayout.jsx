@@ -1,29 +1,40 @@
 import styles from './fieldLayout.module.css';
 import PropTypes from 'prop-types';
-import { useSelector } from 'react-redux';
-import { selectField } from './../store/selects';
+import { connect } from 'react-redux';
+import { Component } from 'react';
 
-export const FieldLayout = ({ handleClickFieds }) => {
-	const field = useSelector(selectField);
+class FieldLayout extends Component {
+	constructor(props) {
+		super(props);
+	}
 
-	return (
-		<div className={styles.fieldContainer}>
-			{field.map((cell, index) => (
-				<div
-					key={index}
-					className={`${styles.cell} ${cell === 'X' ? styles.cellX : cell === 'O' ? styles.cellO : ''}`}
-					onClick={() => handleClickFieds(index)}
-				>
-					{cell}
-				</div>
-			))}
-		</div>
-	);
-};
+	render() {
+		const { field, handleClickFieds } = this.props;
+
+		return (
+			<div className={styles.fieldContainer}>
+				{field.map((cell, index) => (
+					<div
+						key={index}
+						className={`${styles.cell} ${cell === 'X' ? styles.cellX : cell === 'O' ? styles.cellO : ''}`}
+						onClick={() => handleClickFieds(index)}
+					>
+						{cell}
+					</div>
+				))}
+			</div>
+		);
+	}
+}
+
+const mapStateToProps = (state) => ({
+	field: state.field,
+});
+
 
 FieldLayout.propTypes = {
 	field: PropTypes.arrayOf(PropTypes.string).isRequired,
 	handleClickFieds: PropTypes.func.isRequired,
 };
 
-export default FieldLayout;
+export default connect(mapStateToProps)(FieldLayout);
