@@ -28,4 +28,3 @@ GameLayout.propTypes = {
 	handleClickGame: PropTypes.func.isRequired,
 	handleClickFieds: PropTypes.func.isRequired,
 };
-
